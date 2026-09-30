@@ -35,7 +35,11 @@ export function parseCsv(text) {
 const titleCase = (s) => s.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 export async function importMonuments(file) {
-  const rows = parseCsv(readFileSync(file, 'utf8'));
+  return importMonumentsText(readFileSync(file, 'utf8'));
+}
+
+export async function importMonumentsText(text) {
+  const rows = parseCsv(text);
   const head = rows.shift().map((h) => h.trim());
   const idx = Object.fromEntries(head.map((h, i) => [h, i]));
   for (const need of ['city_slug', 'monument_slug', 'title', 'latitude', 'longitude']) {

@@ -8,7 +8,7 @@ id,city_slug,monument_slug,title,category,address,latitude,longitude,audio_durat
 7,palermo,ponte-ammiraglio,Ponte dell'Ammiraglio,UNESCO,Corso dei Mille,38.1042,13.3742,135,/p/palermo/ponte-ammiraglio
 8,palermo,quattro-canti,I Quattro Canti (Piazza Vigliena),Piazza,Piazza Vigliena,38.1157,13.3614,165,/p/palermo/quattro-canti
 9,palermo,piazza-pretoria,Piazza Pretoria e Fontana della Vergogna,Piazza,Piazza Pretoria,38.1156,13.3625,180,/p/palermo/piazza-pretoria
-10,palermo,teatro-massimo,Teatro Massimo Garibaldi,Teatro,Piazza Giuseppe Verdi,38.1202,13.3572,210,/p/palermo/teatro-massimo
+10,palermo,teatro-massimo,Teatro Massimo Vittorio Emanuele,Teatro,Piazza Giuseppe Verdi,38.1202,13.3572,210,/p/palermo/teatro-massimo
 11,palermo,teatro-politeama,Teatro Politeama Garibaldi,Teatro,Piazza Castelnuovo,38.1248,13.3573,180,/p/palermo/teatro-politeama
 12,palermo,mercato-ballaro,Mercato Storico di Ballarò,Mercato,Via Ballarò,38.1122,13.3601,240,/p/palermo/mercato-ballaro
 13,palermo,mercato-capo,Mercato Storico del Capo,Mercato,Via Carini,38.1189,13.3541,210,/p/palermo/mercato-capo

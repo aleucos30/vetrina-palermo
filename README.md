@@ -19,7 +19,7 @@ Serve Node.js 22 o più recente.
 
 ```bash
 npm install
-npm run seed        # 50 siti di monumenti.csv + locali DEMO + 30 giorni di statistiche finte
+npm run seed        # 50 siti + testi in 4 lingue + locali DEMO + 30 giorni di statistiche finte
 ADMIN_PASSWORD="scegli-una-password" SECRET="una-frase-lunga-casuale" npm start
 ```
 
@@ -57,7 +57,18 @@ Se `ADMIN_PASSWORD` e `SECRET` non sono impostati, in produzione l'area admin re
 
 ### 3. Caricare i dati
 
-Il database online parte vuoto. Dal tuo computer, con l'indirizzo di connessione di Neon (lo trovi nel pannello Neon, scegli quello **pooled**):
+Il database online parte vuoto. Hai due modi.
+
+**A. Dal sito (il più semplice).** Entra in `/admin`: finché il database è vuoto la dashboard mostra due pulsanti:
+
+- **Carica solo i 50 siti**: i siti di `monumenti.csv` con i testi in 4 lingue, senza locali né statistiche finte.
+- **Carica i 50 siti + dati di esempio (demo)**: in più 6 locali "DEMO" e 30 giorni di statistiche finte, per mostrare il progetto.
+
+Se il database ha già i siti (per esempio è già stato caricato), vai su **Monumenti e QR** e premi **Carica i testi**: inserisce i testi mancanti senza toccare quelli che hai già scritto o modificato. Dal computer: `npm run testi`.
+
+I pulsanti funzionano solo se il database è vuoto e non cancellano nulla. Usano una copia del CSV incorporata in `monumenti-data.js`: se modifichi `monumenti.csv`, rigenerala con `npm run sync-csv` e ripubblica.
+
+**B. Dal tuo computer**, se la tua rete raggiunge il database. Con l'indirizzo di connessione di Neon (scegli quello **pooled**, o quello diretto per un caricamento unico):
 
 ```bash
 # solo i 50 siti veri, senza locali finti
@@ -66,6 +77,8 @@ DATABASE_URL="postgresql://…" npm run import
 # oppure, per una demo con locali DEMO e statistiche finte
 DATABASE_URL="postgresql://…" npm run seed
 ```
+
+Su Windows PowerShell: `$env:DATABASE_URL = "postgresql://…"` e poi `npm run seed`. Se la connessione va in timeout, la rete potrebbe avere problemi con IPv6: prova `$env:NODE_OPTIONS = "--dns-result-order=ipv4first"` oppure usa il metodo A.
 
 `npm run import -- altro.csv` importa un altro file (per esempio un altro Comune). Si può rilanciare quando vuoi: i siti già presenti (stessa città + stesso `monument_slug`) vengono aggiornati e i testi già scritti restano. Colonne del CSV: `city_slug, monument_slug, title, latitude, longitude`, più `category, address, audio_duration_sec`.
 
@@ -86,7 +99,7 @@ Non sono salvati IP né dati personali. Il "visitatore" è un codice anonimo che
 
 ## Da sapere
 
-- I testi dei monumenti inclusi (Cattedrale, Quattro Canti, Teatro Massimo, Palazzo dei Normanni) sono **bozze** per la demo: riscrivili e verificali. La voce usa la sintesi vocale del telefono; se vuoi registrazioni tue, incolla il link a un file audio nella scheda del monumento.
+- I testi dei 50 siti (italiano, inglese, francese, tedesco; descrizione più leggenda o curiosità) stanno in `testi/*.txt` e sono **bozze**: vedi `testi/DA-VERIFICARE.md`. Dopo una modifica ai file lancia `npm run sync-testi` e ripubblica. La voce usa la sintesi vocale del telefono; se vuoi registrazioni tue, incolla il link a un file audio nella scheda del monumento.
 - I locali "DEMO" e le statistiche del seed sono finti: dillo a chi guarda la demo.
 - Non c'è ancora il pagamento online: il locale si inserisce a mano dall'admin dopo il pagamento (bonifico o link di pagamento).
 - La password admin è una sola. Non condividere il link `/admin`.

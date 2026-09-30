@@ -11,7 +11,10 @@
     "start": "node server.js",
     "seed": "node seed.js",
     "seed:reset": "node seed.js --reset",
-    "import": "node import.js"
+    "import": "node import.js",
+    "sync-csv": "node scripts/sync-csv.js",
+    "sync-testi": "node scripts/sync-testi.js",
+    "testi": "node texts-cli.js"
   },
   "dependencies": {
     "pg": "^8.23.0",

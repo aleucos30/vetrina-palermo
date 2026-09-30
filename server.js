@@ -4,6 +4,10 @@ import { extname, join, normalize, resolve } from 'node:path';
 import crypto from 'node:crypto';
 import QRCode from 'qrcode';
 import { q, one, tx, newToken, reportToken, setSetting } from './db.js';
+import { importMonumentsText } from './import.js';
+import { seedDemo } from './seed.js';
+import { loadTexts, TEXT_SITES } from './texts.js';
+import monumentiCsv from './monumenti-data.js';
 
 const PORT = Number(process.env.PORT || 3000);
 // Indirizzo pubblico usato nei QR. Ordine: BASE_URL → dominio di produzione Vercel → Render → localhost.
@@ -198,6 +202,18 @@ function langTable(rows) {
   return `<table><tr><th>Lingua</th><th class="n">Scansioni</th><th class="n">%</th></tr>${rows.map((r) => `<tr><td>${esc(LANG_NAMES[r.lang] || r.lang)}</td><td class="n">${num(r.n)}</td><td class="n">${Math.round((100 * r.n) / total)}%</td></tr>`).join('')}</table>`;
 }
 
+// --- Caricamento dati iniziali (per quando il database online è vuoto) ---
+const setupCard = () => `<div class="card"><b>Il database è vuoto</b>
+  <p>Carica i 50 siti delle targhe per cominciare.</p>
+  <form method="post" action="/admin/setup" style="display:inline"><input type="hidden" name="mode" value="sites"><button>Carica solo i 50 siti</button></form>
+  <form method="post" action="/admin/setup" style="display:inline"><input type="hidden" name="mode" value="demo"><button class="ghost">Carica i 50 siti + dati di esempio (demo)</button></form>
+  <p class="mute">Vengono caricati anche i testi in 4 lingue. I dati di esempio comprendono 6 locali "DEMO" e 30 giorni di statistiche finte: servono solo per mostrare il progetto. Il caricamento funziona solo se il database è vuoto e non cancella nulla.</p></div>`;
+
+async function setupPage() {
+  const n = (await one('SELECT COUNT(*) n FROM monuments')).n;
+  return layout('Carica dati', `<h1>Carica dati iniziali</h1>${n === 0 ? setupCard() : `<div class="card"><p>Il database contiene già ${num(n)} siti: non serve caricare altro.</p><p><a class="btn" href="/admin">Vai alla dashboard</a></p></div>`}`, { nav: 'dash' });
+}
+
 // --- Dashboard admin ---
 async function dashboardPage(url) {
   const d = rangeDays(url);
@@ -210,8 +226,9 @@ async function dashboardPage(url) {
   const rev = await one(`SELECT COUNT(*) n, COALESCE(SUM(price_eur), 0) eur FROM businesses WHERE active = 1 AND (paid_until IS NULL OR paid_until >= ?)`, [today()]);
   const expiring = await q(`SELECT name, paid_until FROM businesses WHERE active = 1 AND paid_until BETWEEN ? AND ? ORDER BY paid_until`, [today(), romeDay(Date.now() + 30 * 864e5)]);
   const ctr = st.tot.imps ? ((100 * st.tot.clicks) / st.tot.imps).toFixed(1) : '0.0';
+  const empty = (await one('SELECT COUNT(*) n FROM monuments')).n === 0;
   return layout('Dashboard', `
-    <h1>Dashboard</h1>${rangeSwitch('/admin', d)}
+    <h1>Dashboard</h1>${empty ? setupCard() : ''}${rangeSwitch('/admin', d)}
     <div class="grid">
       <div class="kpi"><b>${num(st.tot.scans)}</b>Scansioni QR</div>
       <div class="kpi"><b>${num(st.tot.uniq)}</b>Visitatori (unici al giorno)</div>
@@ -301,6 +318,10 @@ async function monumentsPage(url) {
       <button>Crea</button>
     </form>
     <p class="mute">Per inserirne molti insieme: prepara un CSV come <code>monumenti.csv</code> e lancia <code>npm run import</code>.</p></div>
+    <div class="card"><b>Testi delle audio-guide</b>
+      <p>Per ${TEXT_SITES} siti sono pronti i testi in italiano, inglese, francese e tedesco (descrizione più leggenda o curiosità). Sono <b>bozze</b>: vanno verificati prima del lancio.</p>
+      <form method="post" action="/admin/testi"><button>Carica i testi</button></form>
+      <p class="mute">Non sovrascrive i testi che hai già scritto o modificato: inserisce solo quelli mancanti. Puoi ripremerlo senza rischi.</p></div>
     <p><input id="q" placeholder="Cerca un sito…" oninput="const v=this.value.toLowerCase();document.querySelectorAll('#tb tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?'':'none')"></p>
     <div class="card overflow"><table><thead><tr><th>Sito</th><th>Categoria</th><th>Lingue con testo</th><th class="n">Durata prevista</th><th class="n">Scansioni 30 gg</th><th>QR</th><th></th></tr></thead><tbody id="tb">
     ${shown.map((m) => {
@@ -486,6 +507,7 @@ async function route(req, res) {
     if (method === 'GET' && p === '/admin/businesses') return send(res, 200, await businessesPage());
     if (method === 'GET' && p === '/admin/monuments') return send(res, 200, await monumentsPage(url));
     if (method === 'GET' && p === '/admin/partners') return send(res, 200, await partnersPage());
+    if (method === 'GET' && p === '/admin/setup') return send(res, 200, await setupPage());
     if (method === 'GET' && (m = p.match(/^\/admin\/monuments\/(\d+)$/))) {
       const html = await monumentEditPage(Number(m[1]), url.searchParams.get('ok') ? 'Salvato.' : '');
       return html ? send(res, 200, html) : send(res, 404, 'Non trovato', 'text/plain');
@@ -551,6 +573,26 @@ async function route(req, res) {
         if (!f.name || code.length < 2) return send(res, 400, 'Nome e codice obbligatori', 'text/plain');
         await q('INSERT INTO partners (code, name, type, commission_pct) VALUES (?, ?, ?, ?) ON CONFLICT (code) DO NOTHING', [code, f.name.trim(), 'association', Math.min(100, Math.max(0, Number(f.commission_pct) || 0))]);
         return redirect(res, '/admin/partners');
+      }
+      if (p === '/admin/testi') {
+        const lines = [];
+        await loadTexts({ log: (l) => lines.push(l) });
+        return send(res, 200, layout('Caricamento testi', `<h1>Caricamento testi</h1><div class="card"><pre style="white-space:pre-wrap">${esc(lines.join('\n'))}</pre></div><p><a class="btn" href="/admin/monuments">Vai ai monumenti</a></p>`, { nav: 'mon' }));
+      }
+      if (p === '/admin/setup') {
+        const lines = [];
+        const log = (l) => lines.push(l);
+        if (f.mode === 'demo') {
+          await seedDemo({ log });
+        } else if (f.mode === 'sites') {
+          if ((await one('SELECT COUNT(*) n FROM monuments')).n > 0) log('Database già popolato: non ho cambiato nulla.');
+          else {
+            const r = await importMonumentsText(monumentiCsv);
+            log(`Siti importati: ${r.inserted}${r.skipped.length ? `, saltati: ${r.skipped.length}` : ''}.`);
+            await loadTexts({ log });
+          }
+        } else return send(res, 400, 'Richiesta non valida', 'text/plain');
+        return send(res, 200, layout('Caricamento dati', `<h1>Caricamento dati</h1><div class="card"><pre style="white-space:pre-wrap">${esc(lines.join('\n'))}</pre></div><p><a class="btn" href="/admin">Vai alla dashboard</a></p>`, { nav: 'dash' }));
       }
       if (p === '/admin/report-token/regenerate') { await setSetting('report_token', newToken(16)); return redirect(res, '/admin/partners'); }
     }

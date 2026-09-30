@@ -84,7 +84,7 @@
       <div class="langs">${Object.entries(LANGS).map(([k, [l]]) => `<button data-l="${k}" class="${k === lang ? 'on' : ''}">${l}</button>`).join('')}</div>
       <h1>${esc(t.title || data.monument.name)}</h1>
       <div class="mute">${esc(data.monument.comune)}</div>
-      ${t.body ? `<div class="player"><button class="btn" id="play">${speaking ? u.stop : u.play}</button></div><p>${esc(t.body)}</p>` : `<p class="mute">${u.soon}</p>`}
+      ${t.body ? `<div class="player"><button class="btn" id="play">${speaking ? u.stop : u.play}</button></div>${esc(t.body).split(/\n\s*\n/).map((x) => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}` : `<p class="mute">${u.soon}</p>`}
       <h2>${u.near}</h2>
       ${biz || `<p class="mute">${u.none}</p>`}
       <button class="ghost small" id="geo">${u.geo}</button>`;

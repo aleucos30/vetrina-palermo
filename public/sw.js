@@ -1,4 +1,4 @@
-const CACHE = 'guida-v2';
+const CACHE = 'guida-v3';
 const SHELL = ['/m.html', '/m.js', '/style.css', '/icon.svg', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
