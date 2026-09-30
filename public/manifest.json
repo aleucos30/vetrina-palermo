@@ -1,0 +1,9 @@
+{
+  "name": "Audio-guida Palermo",
+  "short_name": "Guida Palermo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#b4452b",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

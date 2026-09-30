@@ -1,0 +1,51 @@
+id,city_slug,monument_slug,title,category,address,latitude,longitude,audio_duration_sec,qr_code_url
+1,palermo,cattedrale,Cattedrale di Palermo,UNESCO,Corso Vittorio Emanuele,38.1144,13.3561,225,/p/palermo/cattedrale
+2,palermo,cappella-palatina,Palazzo dei Normanni e Cappella Palatina,UNESCO,Piazza Indipendenza,38.1111,13.3533,240,/p/palermo/cappella-palatina
+3,palermo,chiesa-martorana,Chiesa della Martorana,UNESCO,Piazza Bellini,38.1153,13.3622,180,/p/palermo/chiesa-martorana
+4,palermo,chiesa-san-cataldo,Chiesa di San Cataldo,UNESCO,Piazza Bellini,38.1151,13.3621,150,/p/palermo/chiesa-san-cataldo
+5,palermo,san-giovanni-eremiti,Chiesa di San Giovanni degli Eremiti,UNESCO,Via dei Benedettini,38.1097,13.3544,195,/p/palermo/san-giovanni-eremiti
+6,palermo,palazzo-zisa,Palazzo della Zisa,UNESCO,Piazza Zisa,38.1169,13.3421,210,/p/palermo/palazzo-zisa
+7,palermo,ponte-ammiraglio,Ponte dell'Ammiraglio,UNESCO,Corso dei Mille,38.1042,13.3742,135,/p/palermo/ponte-ammiraglio
+8,palermo,quattro-canti,I Quattro Canti (Piazza Vigliena),Piazza,Piazza Vigliena,38.1157,13.3614,165,/p/palermo/quattro-canti
+9,palermo,piazza-pretoria,Piazza Pretoria e Fontana della Vergogna,Piazza,Piazza Pretoria,38.1156,13.3625,180,/p/palermo/piazza-pretoria
+10,palermo,teatro-massimo,Teatro Massimo Garibaldi,Teatro,Piazza Giuseppe Verdi,38.1202,13.3572,210,/p/palermo/teatro-massimo
+11,palermo,teatro-politeama,Teatro Politeama Garibaldi,Teatro,Piazza Castelnuovo,38.1248,13.3573,180,/p/palermo/teatro-politeama
+12,palermo,mercato-ballaro,Mercato Storico di Ballarò,Mercato,Via Ballarò,38.1122,13.3601,240,/p/palermo/mercato-ballaro
+13,palermo,mercato-capo,Mercato Storico del Capo,Mercato,Via Carini,38.1189,13.3541,210,/p/palermo/mercato-capo
+14,palermo,mercato-vucciria,Mercato della Vucciria,Mercato,Piazza Garraffello,38.1172,13.3638,195,/p/palermo/mercato-vucciria
+15,palermo,mercato-latteri,Mercato delle Pulci e Lattarini,Mercato,Piazza Lattarini,38.1161,13.3650,150,/p/palermo/mercato-latteri
+16,palermo,chiesa-spasimo,Santa Maria dello Spasimo,Monumento,Via dello Spasimo,38.1131,13.3712,180,/p/palermo/chiesa-spasimo
+17,palermo,palazzo-abatellis,Galleria Regionale di Palazzo Abatellis,Museo,Via Alloro,38.1151,13.3708,225,/p/palermo/palazzo-abatellis
+18,palermo,porto-cala,La Cala e Porto Antico,Marina,Via Foro Italico,38.1198,13.3689,150,/p/palermo/porto-cala
+19,palermo,foro-italico,Foro Italico Umberto I,Passeggiata,Foro Italico,38.1162,13.3748,135,/p/palermo/foro-italico
+20,palermo,catacombe-cappuccini,Catacombe dei Cappuccini,Sito Storico,Piazza Cappuccini,38.1117,13.3398,240,/p/palermo/catacombe-cappuccini
+21,palermo,santuario-santa-rosalia,Santuario di Santa Rosalia,Religioso,Monte Pellegrino,38.1664,13.3524,210,/p/palermo/santuario-santa-rosalia
+22,palermo,spiaggia-mondello,Borgo e Spiaggia di Mondello,Natura/Liberty,Viale Regina Elena,38.2012,13.3315,180,/p/palermo/spiaggia-mondello
+23,palermo,oratorio-san-lorenzo,Oratorio di San Lorenzo,Barocco,Via Saluto,38.1166,13.3681,165,/p/palermo/oratorio-san-lorenzo
+24,palermo,oratorio-santa-cita,Oratorio di Santa Cita,Barocco,Via Via Materassai,38.1192,13.3644,180,/p/palermo/oratorio-santa-cita
+25,palermo,chiesa-casa-professa,Chiesa del Gesù (Casa Professa),Barocco,Piazza Casa Professa,38.1128,13.3619,210,/p/palermo/chiesa-casa-professa
+26,palermo,chiesa-san-domenico,Chiesa di San Domenico e Pantheon,Religioso,Piazza San Domenico,38.1189,13.3628,195,/p/palermo/chiesa-san-domenico
+27,palermo,spasimo-magione,Basilica della Magione,Religioso,Piazza Magione,38.1125,13.3703,165,/p/palermo/spasimo-magione
+28,palermo,chiesa-sant-agostino,Chiesa di Sant'Agostino,Religioso,Via Sant'Agostino,38.1178,13.3569,150,/p/palermo/chiesa-sant-agostino
+29,palermo,palazzo-mirto,Museo di Palazzo Mirto,Museo/Dimora,Via Merlo,38.1158,13.3692,180,/p/palermo/palazzo-mirto
+30,palermo,palazzo-steri,Palazzo Chiaramonte-Steri,Sito Storico,Piazza Marina,38.1169,13.3683,225,/p/palermo/palazzo-steri
+31,palermo,palazzo-riso,Museo Riso (Arte Contemporanea),Museo,Corso Vittorio Emanuele,38.1150,13.3606,165,/p/palermo/palazzo-riso
+32,palermo,palazzo-comitini,Palazzo Comitini,Palazzo,Via Maqueda,38.1122,13.3622,150,/p/palermo/palazzo-comitini
+33,palermo,palazzo-valguarnera-gangi,Palazzo Valguarnera Gangi,Palazzo,Piazza Croce dei Vespri,38.1136,13.3642,210,/p/palermo/palazzo-valguarnera-gangi
+34,palermo,palazzo-natoli,Palazzo Natoli,Palazzo,Largo Salvatore Natoli,38.1141,13.3592,135,/p/palermo/palazzo-natoli
+35,palermo,porta-nueva,Porta Nuova,Porta Monumentale,Corso Vittorio Emanuele,38.1122,13.3528,150,/p/palermo/porta-nueva
+36,palermo,porta-felice,Porta Felice,Porta Monumentale,Foro Italico,38.1183,13.3725,135,/p/palermo/porta-felice
+37,palermo,porta-carini,Porta Carini,Porta Monumentale,Via Porta Carini,38.1186,13.3522,120,/p/palermo/porta-carini
+38,palermo,porta-san-giorgio,Porta San Giorgio,Porta Monumentale,Piazza San Giorgio,38.1214,13.3625,120,/p/palermo/porta-san-giorgio
+39,palermo,piazza-marina-ficus,Piazza Marina e Ficus Macrophylla,Piazza/Natura,Piazza Marina,38.1167,13.3697,150,/p/palermo/piazza-marina-ficus
+40,palermo,orto-botanico,Orto Botanico dell'Università,Natura/Museo,Via Lincoln,38.1119,13.3736,240,/p/palermo/orto-botanico
+41,palermo,villa-giulia,Villa Giulia,Parco Storico,Via Lincoln,38.1108,13.3756,165,/p/palermo/villa-giulia
+42,palermo,villa-malfitano,Villa Malfitano Whitaker,Dimora/Parco,Via Dante,38.1264,13.3486,195,/p/palermo/villa-malfitano
+43,palermo,villino-florio,Villino Florio all'Olivuzza,Liberty,Viale Regina Margherita,38.1211,13.3469,180,/p/palermo/villino-florio
+44,palermo,parco-favorita,Parco della Favorita e Palazzina Cinese,Natura/Reale,Viale del Fante,38.1633,13.3331,210,/p/palermo/parco-favorita
+45,palermo,chiesa-san-giovanni-lebbrosi,San Giovanni dei Lebbrosi,Normanno,Via Salvatore Cappello,38.0983,13.3853,165,/p/palermo/chiesa-san-giovanni-lebbrosi
+46,palermo,castello-utveggio,Castello Utveggio,Sito Storico,Monte Pellegrino,38.1503,13.3597,150,/p/palermo/castello-utveggio
+47,palermo,museo-pasqualino,Museo delle Marionette Antonio Pasqualino,Museo,Piazza Antonio Pasqualino,38.1172,13.3703,180,/p/palermo/museo-pasqualino
+48,palermo,chiesa-santa-maria-catena,Chiesa di Santa Maria della Catena,Religioso,Piazzetta Dogana,38.1178,13.3692,165,/p/palermo/chiesa-santa-maria-catena
+49,palermo,chiesa-san-giuseppe-teatini,Chiesa di San Giuseppe dei Teatini,Barocco,Via Maqueda,38.1156,13.3608,180,/p/palermo/chiesa-san-giuseppe-teatini
+50,palermo,riserva-capo-gallo,Riserva Naturale Capo Gallo e Faro,Natura,Sferracavallo/Mondello,38.2208,13.3183,210,/p/palermo/riserva-capo-gallo

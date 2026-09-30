@@ -1,0 +1,23 @@
+{
+  "name": "vetrina-palermo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PWA audio-guida via QR con vetrina di locali vicini, dashboard admin e report aggregato per il Comune",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "seed:reset": "node seed.js --reset",
+    "import": "node import.js"
+  },
+  "dependencies": {
+    "pg": "^8.23.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  }
+}
