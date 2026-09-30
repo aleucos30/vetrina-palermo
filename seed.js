@@ -43,6 +43,8 @@ for (const [n, c, a, lat, lng, ph, web, d, tier, price, partner] of demo) {
 const mons = await q('SELECT id, slug FROM monuments');
 const bizs = await q('SELECT id FROM businesses');
 const langs = ['it', 'en', 'en', 'fr', 'de', 'es', 'en', 'it'];
+const countries = { it: ['IT', 'IT', 'IT', 'CH'], en: ['GB', 'US', 'US', 'IE', 'AU'], fr: ['FR', 'FR', 'BE'], de: ['DE', 'DE', 'AT', 'CH'], es: ['ES', 'ES', 'AR'] };
+const channels = ['qr', 'qr', 'qr', 'qr', 'diretto', 'social', 'ricerca'];
 const weight = { cattedrale: 5, 'quattro-canti': 6, 'teatro-massimo': 3, 'cappella-palatina': 4 };
 let seed = 42;
 const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
@@ -55,12 +57,13 @@ for (let d = 29; d >= 0; d--) {
       const ts = `${day} ${String(8 + Math.floor(rnd() * 12)).padStart(2, '0')}:${String(Math.floor(rnd() * 60)).padStart(2, '0')}:00+00`;
       const lang = langs[Math.floor(rnd() * langs.length)];
       const visitor = `v${day}${m.id}${i}`;
-      evs.push([ts, 'scan', m.id, null, lang, null, visitor]);
-      if (rnd() < 0.6) evs.push([ts, 'audio', m.id, null, lang, null, visitor]);
+      const cc = countries[lang][Math.floor(rnd() * countries[lang].length)], ch = channels[Math.floor(rnd() * channels.length)];
+      evs.push([ts, 'scan', m.id, null, lang, null, visitor, cc, ch]);
+      if (rnd() < 0.6) evs.push([ts, 'audio', m.id, null, lang, null, visitor, cc, ch]);
       for (let k = 0; k < 3; k++) {
         const b = bizs[Math.floor(rnd() * bizs.length)].id;
-        evs.push([ts, 'impression', m.id, b, lang, null, visitor]);
-        if (rnd() < 0.08) evs.push([ts, ['call', 'map', 'web'][Math.floor(rnd() * 3)], m.id, b, lang, null, visitor]);
+        evs.push([ts, 'impression', m.id, b, lang, null, visitor, cc, ch]);
+        if (rnd() < 0.08) evs.push([ts, ['call', 'map', 'web'][Math.floor(rnd() * 3)], m.id, b, lang, null, visitor, cc, ch]);
       }
     }
   }
@@ -69,7 +72,7 @@ for (let d = 29; d >= 0; d--) {
 await tx(async (t) => {
   for (let i = 0; i < evs.length; i += 2000) {
     const chunk = evs.slice(i, i + 2000);
-    await t.q(`INSERT INTO events (ts, type, monument_id, business_id, lang, source, visitor) VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',')}`, chunk.flat());
+    await t.q(`INSERT INTO events (ts, type, monument_id, business_id, lang, source, visitor, country, channel) VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?)').join(',')}`, chunk.flat());
   }
 });
 log(`Eventi di esempio: ${evs.length}`);

@@ -12,12 +12,24 @@
   };
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  const params = new URLSearchParams(location.search);
+  // come è arrivato il visitatore: QR (?q=1 nel link stampato) oppure dal sito/app da cui ha cliccato
+  const channel = (() => {
+    if (params.get('q') === '1') return 'qr';
+    let h = '';
+    try { h = new URL(document.referrer).hostname; } catch { return 'diretto'; }
+    if (!h) return 'diretto';
+    if (h === location.hostname) return 'sito';
+    if (/(facebook|instagram|whatsapp|t\.co|twitter|x\.com|tiktok|telegram|linkedin|pinterest|reddit|messenger)/.test(h)) return 'social';
+    if (/(google|bing|duckduckgo|yahoo|ecosia|qwant|baidu|yandex)/.test(h)) return 'ricerca';
+    return 'altro';
+  })();
   let lang = (localStorage.getItem('lang') || (navigator.language || 'en').slice(0, 2)).toLowerCase();
   if (!LANGS[lang]) lang = 'en';
   let pos = null, data = null, audioEl = null, speaking = false, scanned = false;
 
   const track = (type, extra = {}) => {
-    const body = JSON.stringify({ type, city, slug, lang, source, ...extra });
+    const body = JSON.stringify({ type, city, slug, lang, source, channel, ...extra });
     try { if (!navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }))) throw 0; }
     catch { fetch('/api/track', { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true }).catch(() => {}); }
   };
@@ -105,5 +117,15 @@
   });
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-  load();
+  // se il visitatore ha già dato il permesso alla posizione, la usa da subito (nessuna richiesta nuova)
+  async function start() {
+    try {
+      const st = await navigator.permissions?.query({ name: 'geolocation' });
+      if (st?.state === 'granted') {
+        await new Promise((ok) => navigator.geolocation.getCurrentPosition((p) => { pos = { lat: p.coords.latitude, lng: p.coords.longitude }; ok(); }, ok, { timeout: 5000, maximumAge: 120000 }));
+      }
+    } catch {}
+    load();
+  }
+  start();
 })();

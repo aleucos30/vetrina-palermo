@@ -115,6 +115,15 @@ async function monumentPayload(city, slug, lang, lat, lng) {
   };
 }
 
+const CHANNELS = new Set(['qr', 'diretto', 'social', 'ricerca', 'sito', 'altro']);
+// Paese dal solo codice a 2 lettere che la piattaforma aggiunge alla richiesta (Vercel/Cloudflare). L'indirizzo IP non viene salvato.
+const countryOf = (req) => {
+  const c = String(req.headers['x-vercel-ip-country'] || req.headers['cf-ipcountry'] || '').toUpperCase();
+  return /^[A-Z]{2}$/.test(c) && c !== 'XX' && c !== 'T1' ? c : null;
+};
+const COUNTRY_NAMES = (() => { try { return new Intl.DisplayNames(['it'], { type: 'region' }); } catch { return null; } })();
+const countryName = (c) => (c ? (COUNTRY_NAMES?.of(c) || c) : 'Non rilevato');
+const CHANNEL_NAMES = { qr: 'Scansione del QR', diretto: 'Link aperto direttamente', social: 'Social e messaggi', ricerca: 'Motore di ricerca', sito: 'Da un sito', altro: 'Altro', nd: 'Non rilevato' };
 const EVENT_TYPES = new Set(['scan', 'audio', 'call', 'map', 'web', 'impression']);
 
 async function handleTrack(req, res) {
@@ -125,16 +134,18 @@ async function handleTrack(req, res) {
   if (!m) return json(res, 404, { error: 'slug' });
   const lang = LANGS.includes(b.lang) ? b.lang : null;
   const source = /^[a-z0-9-]{1,30}$/.test(b.source || '') ? b.source : null;
+  const channel = CHANNELS.has(b.channel) ? b.channel : null;
+  const country = countryOf(req);
   const visitor = visitorHash(req);
   const ids = b.type === 'impression' ? (Array.isArray(b.business_ids) ? b.business_ids : []).slice(0, 20) : [b.business_id ?? null];
   const rows = [];
   for (const id of ids) {
     const bid = id == null ? null : Number(id);
     if (bid != null && !Number.isInteger(bid)) continue;
-    rows.push([b.type, m.id, bid, lang, source, visitor]);
+    rows.push([b.type, m.id, bid, lang, source, visitor, country, channel]);
   }
   if (rows.length) {
-    await q(`INSERT INTO events (type, monument_id, business_id, lang, source, visitor) VALUES ${rows.map(() => '(?, ?, ?, ?, ?, ?)').join(',')}`, rows.flat());
+    await q(`INSERT INTO events (type, monument_id, business_id, lang, source, visitor, country, channel) VALUES ${rows.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',')}`, rows.flat());
   }
   json(res, 200, { ok: true });
 }
@@ -194,8 +205,17 @@ async function stats(d) {
   const perLang = await q(`SELECT COALESCE(lang, 'n/d') lang, COUNT(*) n FROM events WHERE type = 'scan' AND ts >= now() - make_interval(days => ?) GROUP BY lang ORDER BY n DESC`, [d]);
   const perComune = await q(`SELECT m.comune, COUNT(*) n FROM events e JOIN monuments m ON m.id = e.monument_id WHERE e.type = 'scan' AND e.ts >= now() - make_interval(days => ?) GROUP BY m.comune ORDER BY n DESC`, [d]);
   const perDay = await q(`SELECT ${DAY_SQL('ts')} AS day, COUNT(*) n FROM events WHERE type = 'scan' AND ts >= now() - make_interval(days => ?) GROUP BY 1`, [d]);
-  return { tot, perMon, perLang, perComune, perDay };
+  const perCountry = await q(`SELECT COALESCE(country, 'nd') k, COUNT(*) n FROM events WHERE type = 'scan' AND ts >= now() - make_interval(days => ?) GROUP BY 1 ORDER BY n DESC LIMIT 15`, [d]);
+  const perChannel = await q(`SELECT COALESCE(channel, 'nd') k, COUNT(*) n FROM events WHERE type = 'scan' AND ts >= now() - make_interval(days => ?) GROUP BY 1 ORDER BY n DESC`, [d]);
+  return { tot, perMon, perLang, perComune, perDay, perCountry, perChannel };
 }
+
+function distTable(title, rows, nameOf) {
+  const total = rows.reduce((a, r) => a + r.n, 0) || 1;
+  return `<table><tr><th>${title}</th><th class="n">Scansioni</th><th class="n">%</th></tr>${rows.map((r) => `<tr><td>${esc(nameOf(r.k))}</td><td class="n">${num(r.n)}</td><td class="n">${Math.round((100 * r.n) / total)}%</td></tr>`).join('')}</table>`;
+}
+const countryTable = (rows) => distTable('Paese', rows, countryName);
+const channelTable = (rows) => distTable('Come sono arrivati', rows, (k) => CHANNEL_NAMES[k] || k);
 
 function langTable(rows) {
   const total = rows.reduce((a, r) => a + r.n, 0) || 1;
@@ -243,6 +263,8 @@ async function dashboardPage(url) {
     ${st.perMon.map((m) => `<tr><td><a href="/p/${esc(m.city_slug)}/${esc(m.slug)}" target="_blank">${esc(m.name)}</a></td><td>${esc(m.comune)}</td><td class="n">${num(m.scans)}</td><td class="n">${num(m.uniq)}</td><td class="n">${num(m.audio)}</td><td class="n">${num(m.clicks)}</td></tr>`).join('')}</table></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
       <div><h2>Lingue</h2><div class="card">${langTable(st.perLang)}</div></div>
+      <div><h2>Paese di provenienza</h2><div class="card">${countryTable(st.perCountry)}</div></div>
+      <div><h2>Come sono arrivati</h2><div class="card">${channelTable(st.perChannel)}</div></div>
       <div><h2>Locali più cliccati</h2><div class="card overflow"><table><tr><th>Locale</th><th class="n">Mostrato</th><th class="n">Click</th></tr>
       ${topBiz.map((b) => `<tr><td>${esc(b.name)}</td><td class="n">${num(b.imps)}</td><td class="n">${num(b.clicks)}</td></tr>`).join('')}</table></div></div>
     </div>`, { nav: 'dash' });
@@ -402,9 +424,11 @@ async function reportPage(url) {
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
       <div><h2>Per comune</h2><div class="card"><table><tr><th>Comune</th><th class="n">Scansioni</th></tr>${st.perComune.map((c) => `<tr><td>${esc(c.comune)}</td><td class="n">${num(c.n)}</td></tr>`).join('')}</table></div></div>
       <div><h2>Lingua dei visitatori</h2><div class="card">${langTable(st.perLang)}</div></div>
+      <div><h2>Paese di provenienza</h2><div class="card">${countryTable(st.perCountry)}</div></div>
+      <div><h2>Come sono arrivati</h2><div class="card">${channelTable(st.perChannel)}</div></div>
     </div>
     <p class="noprint"><a class="btn" href="/report/${token}.csv?d=${d}">Scarica CSV</a> <button class="ghost" onclick="print()">Stampa / PDF</button></p>
-    <p class="mute">Il "visitatore unico" è calcolato con un codice anonimo che cambia ogni giorno: non sono salvati indirizzi IP né dati personali, e lo stesso visitatore in giorni diversi viene contato più volte.</p>`, { wide: true });
+    <p class="mute">Il "visitatore unico" è calcolato con un codice anonimo che cambia ogni giorno: non sono salvati indirizzi IP né dati personali (del paese si salva solo il codice, per esempio "DE", ricavato dalla richiesta), e lo stesso visitatore in giorni diversi viene contato più volte.</p>`, { wide: true });
 }
 
 async function reportCsv(url) {
@@ -513,14 +537,14 @@ async function route(req, res) {
       return html ? send(res, 200, html) : send(res, 404, 'Non trovato', 'text/plain');
     }
     if (method === 'GET' && (m = p.match(/^\/admin\/qr\/([a-z0-9-]+)\/([a-z0-9-]+)\.svg$/))) {
-      const svg = await QRCode.toString(`${BASE}/p/${m[1]}/${m[2]}`, { type: 'svg', margin: 2, errorCorrectionLevel: 'M' });
+      const svg = await QRCode.toString(`${BASE}/p/${m[1]}/${m[2]}?q=1`, { type: 'svg', margin: 2, errorCorrectionLevel: 'M' });
       return send(res, 200, svg, 'image/svg+xml');
     }
     if (method === 'GET' && p === '/admin/print') {
       const s = /^[a-z0-9-]{1,30}$/.test(url.searchParams.get('s') || '') ? url.searchParams.get('s') : '';
       const mons = await q('SELECT city_slug, slug, name FROM monuments WHERE active = 1 ORDER BY city_slug, name');
       const cells = await Promise.all(mons.map(async (mo) => {
-        const link = `${BASE}/p/${mo.city_slug}/${mo.slug}${s ? `?s=${s}` : ''}`;
+        const link = `${BASE}/p/${mo.city_slug}/${mo.slug}?q=1${s ? `&s=${s}` : ''}`;
         const svg = await QRCode.toString(link, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
         return `<div class="qrcell">${svg}<b>${esc(mo.name)}</b><span class="mute">Scansiona per l'audio-guida · Scan for the audio guide</span></div>`;
       }));

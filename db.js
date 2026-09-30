@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS events (
   source TEXT,
   visitor TEXT
 );
+ALTER TABLE events ADD COLUMN IF NOT EXISTS country TEXT;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS channel TEXT;
 CREATE INDEX IF NOT EXISTS ev_ts ON events (ts);
 CREATE INDEX IF NOT EXISTS ev_m ON events (monument_id, type, ts);
 CREATE INDEX IF NOT EXISTS ev_b ON events (business_id, type, ts);

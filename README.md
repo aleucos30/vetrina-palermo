@@ -5,7 +5,7 @@ PWA turistica: il turista inquadra il QR sulla targa di un monumento, si apre la
 Cosa c'è dentro:
 
 - **Pagina del sito** (`/p/<città>/<sito>`, per esempio `/p/palermo/cattedrale`): testo e audio in IT, EN, FR, DE, ES; vetrina "Vicino a te" ordinata per piano (Plus prima, poi Base) e distanza; pulsanti Chiama, Mappa, Sito; funziona offline per l'ultimo contenuto visto.
-- **Dashboard admin** (`/admin`): scansioni, visitatori, ascolti e click per singolo QR; lingue; locali più cliccati; incasso annuo degli abbonamenti e scadenze.
+- **Dashboard admin** (`/admin`): scansioni, visitatori, ascolti e click per singolo QR; lingue, paese di provenienza e canale di arrivo; locali più cliccati; incasso annuo degli abbonamenti e scadenze.
 - **Vetrina** (`/admin/businesses`): aggiungi locali, piano Base 300 € / Plus 500 €, data di scadenza, attivo/non attivo, associazione che lo ha portato.
 - **Monumenti e QR** (`/admin/monuments`): crei monumenti, scrivi i testi per lingua, scarichi il QR in SVG o stampi un foglio A4 con tutti i QR.
 - **Report per il Comune** (`/report/<codice>`): dati aggregati e anonimi, con CSV e stampa/PDF. Il link si trova in "Partner e Comune" e si può rigenerare.
@@ -95,7 +95,7 @@ Il piano gratuito (Hobby) è limitato a uso personale non commerciale, secondo l
 
 ## Privacy
 
-Non sono salvati IP né dati personali. Il "visitatore" è un codice anonimo che cambia ogni giorno, quindi lo stesso turista in giorni diversi conta più volte. La posizione del telefono è usata solo se il turista preme "Usa la mia posizione", e non è memorizzata. Per la pubblicazione serve comunque una breve informativa privacy: fattela controllare.
+Non sono salvati IP né dati personali. Di ogni scansione si salvano la lingua, il **paese** (solo il codice a due lettere, per esempio DE, che Vercel aggiunge alla richiesta; in locale non c'è) e il **canale** (QR, link diretto, social, ricerca, altro sito). Il "visitatore" è un codice anonimo che cambia ogni giorno, quindi lo stesso turista in giorni diversi conta più volte. La posizione del telefono è usata solo se il turista preme "Usa la mia posizione", e non è memorizzata. Per la pubblicazione serve comunque una breve informativa privacy: fattela controllare.
 
 ## Da sapere
 
